@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style type="text/css">
+        #score {
+            color: red;
+            font-size: 20px;
+            width: 160px;
+            height: 62px;
+            border: blue solid 5px;
+            border-radius: 10px;
+        }
+        
+        #chasiki {
+            color: red;
+            font-size: 50px;
+            width: 160px;
+            height: 62px;
+            border: blue solid 5px;
+            border-radius: 10px;
+        }
+        
+        body {
+            background-color: rgb(50, 155, 50);
+        }
+        
+        .cel-container {
+            display: flex;
+        }
+        
+        .cel {
+            /*ну типо цель тип вы поняли*/
+            width: 75px;
+            height: 25px;
+            border: black solid 2px;
+            background-color: yellow;
+        }
+        
+        #sharik {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 500px;
+            background-image: url("sosibaka.png");
+            background-size: 40px 40px;
+        }
+        
+        .netext {
+            border: solid blue 3px;
+            width: 150px;
+            height: 150px;
+            color: red;
+        }
+        
+        #container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            bottom: 0;
+            top: 0;
+            right: 0;
+            left: 0;
+        }
+        
+        #field {
+            border-right: solid black 3px;
+            border-top: solid black 3px;
+            border-left: solid black 3px;
+            background: no-repeat url("fieldbackground.gif");
+            background-size: 100% 100%;
+            width: 800px;
+            height: 600px;
+        }
+        
+        #otbivalka {
+            position: absolute;
+            width: 100px;
+            height: 20px;
+            bottom: 100px;
+            left: 700px;
+            background-image: url("pan.png");
+            background-size: 100px 20px;
+        }
+    </style>
+    <script type="text/javascript">
+        function pishi() {
+            var iddiva = 1
+            for (var dadf = 0; dadf < 8; dadf++) {
+                document.write("<div class='cel-container'>")
+                for (var i = 0; i < 10; i++) {
+
+                    document.write("<div class='cel' id='" + iddiva + "'></div>")
+                    iddiva = iddiva + 1
+                }
+
+                document.write("</div>")
+            }
+        }
+
+        function mishka() {
+
+            b = document.getElementById('field').getBoundingClientRect();
+
+            if (b.left > event.clientX) {
+                document.getElementById('otbivalka').style.left = b.left + "px"
+            } else {
+                if (event.clientX + 100 > b.right) {
+                    document.getElementById('otbivalka').style.left = b.right - 100 + "px"
+                } else {
+                    document.getElementById('otbivalka').style.left = event.clientX + "px"
+
+                }
+
+            }
+
+        }
+
+        function leti() {
+
+
+            /* проверяем чтобы отбивалка не вышла за пределы поля*/
+            b = document.getElementById('field').getBoundingClientRect()
+            u = document.getElementById('otbivalka').getBoundingClientRect()
+            if (x <= b.left) {
+                xx = 1
+            } else {
+                if (x >= b.right - 40) {
+                    xx = -1
+                }
+            }
+
+            if (y >= u.top - 30 && x <= u.right && x >= u.left) {
+                yy = -1
+            }
+            if (y <= b.top) {
+                yy = 1
+            } else {
+                if (y >= b.bottom - 20) {
+                    yy = 0
+                    xx = 0
+                }
+            }
+
+            /* вычисляем координаты шарика*/
+            x = x + speed * xx
+            y = y + speed * yy
+
+            /*проверяем не врезался ли шарик*/
+            for (var i = 1; i <= 80; i++) {
+                var celdiv = document.getElementById(i)
+                if (window.getComputedStyle(celdiv, null).getPropertyValue("visibility") == "hidden") continue;
+
+                var hitbox = celdiv.getBoundingClientRect()
+                if (x >= hitbox.left &&
+                    x <= hitbox.right &&
+                    y >= hitbox.top &&
+                    y <= hitbox.bottom) {
+
+                    celdiv.style.visibility = "hidden";
+                    scorenumber = scorenumber + 1
+                    document.getElementById("score").innerHTML = "score:" + scorenumber
+                        /*отбиваем шарик от дива*/
+                    var shartop = x - hitbox.top
+                    var sharright = hitbox.right - y
+                    var sharleft = y - hitbox.left
+                    var sharbottom = hitbox.bottom - x
+                    if (shartop < sharleft &&
+                        shartop < sharright ||
+                        sharbottom < sharleft &&
+                        sharbottom < sharright) {
+                        yy = -yy
+                    } else {
+                        xx = -xx
+                    }
+                }
+            }
+
+            /*двигаем шарик*/
+            document.getElementById("sharik").style.left = x + "px"
+            document.getElementById("sharik").style.top = y + "px"
+            speed = speed + 0.00025
+        }
+
+        setInterval(leti, 5);
+
+        function secunda() {
+            document.getElementById("chasiki").innerHTML = vremya
+            vremya = vremya + 1
+        }
+
+        setInterval(secunda, 1000);
+    </script>
+</head>
+
+<body onmousemove="mishka()">
+
+    <div id="score">score: </div>
+
+
+    <div id="chasiki">
+        0
+    </div>
+
+
+    <div id="container">
+
+        <div id="field">
+            <script>
+                pishi()
+            </script>
+
+
+            <div id="sharik"></div>
+
+            <div id="otbivalka"></div>
+        </div>
+    </div>
+    <script>
+        var scorenumber = 0
+        var x = document.getElementById('field').getBoundingClientRect().left
+        var y = document.getElementById('field').getBoundingClientRect().bottom - 50
+        var yy = -1
+        var xx = 1
+        var speed = 1.5
+        var vremya = 1
+    </script>
+</body>
+
+</html>
